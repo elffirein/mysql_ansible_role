@@ -1,0 +1,35 @@
+---
+# tasks file for mysql_db
+    - name: Install MYSQL server and client
+      apt: name={{ item }} state=present
+      become: true
+      loop:
+        - mysql-server
+        - mysql-client
+    - name: start mysql server
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+    - name: Create mysql db
+      community.mysql.mysql_db:
+        name: "{{ db_name }}"
+        state: present
+        login_unix_socket: "/var/run/mysqld/mysqld.sock"
+        config_file: ''
+        login_user: root
+        login_password: root
+      no_log: false
+      become: true
+      become_method: sudo
+    - name: Create mysql user
+      community.mysql.mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        priv: 'employee_db.*:ALL'
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        config_file: ''
+        login_user: root
+        login_password: root
+      become: true
